@@ -1057,6 +1057,34 @@ test('secp256k1.verifySignatureDER', async t => {
   // TODO: fast-check
 });
 
+test('secp256k1.computeEcdh', async t => {
+  const secp256k1 = await secp256k1Promise;
+
+  const keys = [
+    '2e171b4bcc8a3f0cf90bc58443f7cf7fcbeba735ccfc402ea29e8ac8c45bb366',
+    '561cdd4be52d3287bfc7dce747bbfa08708a1336a607e20e2fe3e363b93d32cd',
+    'a8ea7fcd32a7611438acae1eea0fba06e010c0d9781e005cca0f99f79dda57be'
+  ]
+    .map(p => Buffer.from(p, 'hex'))
+    .map(p => ({
+      private: p,
+      public: secp256k1.derivePublicKeyUncompressed(p)
+    }));
+
+  const secret1 = Buffer.from(
+    secp256k1.computeEcdhSecret(keys[0].public, keys[1].private)
+  ).toString('hex');
+  const secret2 = Buffer.from(
+    secp256k1.computeEcdhSecret(keys[1].public, keys[0].private)
+  ).toString('hex');
+  const secret3 = Buffer.from(
+    secp256k1.computeEcdhSecret(keys[0].public, keys[0].private)
+  ).toString('hex');
+
+  t.is(secret1, secret2);
+  t.not(secret3, secret2);
+});
+
 test('secp256k1.verifySignatureDERLowS', async t => {
   const secp256k1 = await secp256k1Promise;
   t.true(

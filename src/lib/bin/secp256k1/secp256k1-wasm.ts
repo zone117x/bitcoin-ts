@@ -111,6 +111,13 @@ export interface Secp256k1Wasm {
    */
   readonly contextRandomize: (contextPtr: number, seedPtr: number) => 1 | 0;
 
+  readonly ecdh: (
+    contextPtr: number,
+    resultPtr: number,
+    pubkeyPtr: number,
+    privkeyPtr: number
+  ) => 1 | 0;
+
   /**
    * Frees a pointer allocated by the `malloc` method.
    * @param pointer the pointer to be freed
@@ -604,7 +611,13 @@ const wrapSecp256k1Wasm = (
   contextCreate: context => instance.exports._secp256k1_context_create(context),
   contextRandomize: (contextPtr, seedPtr) =>
     instance.exports._secp256k1_context_randomize(contextPtr, seedPtr),
-
+  ecdh: (contextPtr, resultPtr, pubkeyPtr, privkeyPtr) =>
+    instance.exports._secp256k1_ecdh(
+      contextPtr,
+      resultPtr,
+      pubkeyPtr,
+      privkeyPtr
+    ),
   free: pointer => instance.exports._free(pointer),
   heapU32,
   heapU8,

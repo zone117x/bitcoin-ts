@@ -1,7 +1,10 @@
 # FROM trzeci/emscripten-slim:latest
 FROM trzeci/emscripten-slim@sha256:e3cd9edf81c5d9cd78d2edf034ce6fcb2dccb35f1f5451e8ce75e5210bbbf036
 
-RUN apt-get update \
+RUN echo "deb [check-valid-until=no] http://archive.debian.org/debian jessie-backports main" > /etc/apt/sources.list.d/jessie-backports.list
+RUN sed -i '/deb http:\/\/deb.debian.org\/debian jessie-updates main/d' /etc/apt/sources.list
+
+RUN apt-get -o Acquire::Check-Valid-Until=false update \
   && apt-get install -y \
   autoconf \
   libtool \
@@ -12,7 +15,7 @@ COPY wasm /bitcoin-ts/wasm
 WORKDIR /bitcoin-ts/wasm/secp256k1
 
 RUN ./autogen.sh
-RUN emconfigure ./configure --enable-module-recovery \
+RUN emconfigure ./configure --enable-experimental --enable-module-ecdh --enable-module-recovery \
   # uncomment next line for debug build:
   # CFLAGS="-g -O0" 
   # uncomment next line for production build:
@@ -53,7 +56,8 @@ RUN emcc src/libsecp256k1_la-secp256k1.o \
   "_secp256k1_ecdsa_sign_recoverable", \
   "_secp256k1_ecdsa_recover", \
   "_secp256k1_ecdsa_recoverable_signature_serialize_compact", \
-  "_secp256k1_ecdsa_recoverable_signature_parse_compact"\
+  "_secp256k1_ecdsa_recoverable_signature_parse_compact", \
+  "_secp256k1_ecdh" \
   ]' \
   -o out/secp256k1/secp256k1.js
 

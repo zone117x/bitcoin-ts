@@ -101,6 +101,21 @@ export interface Secp256k1 {
   readonly compressPublicKey: (publicKey: Uint8Array) => Uint8Array;
 
   /**
+   * Compute an EC Diffie-Hellman secret in constant time.
+   *
+   * Throws if the provided public key could not be parsed or if the exponentiation
+   * is unsuccessful.
+   *
+   * @param publicKey a public key.
+   * @param privateKey a valid secp256k1, 32-byte private key.
+   * @returns a 32-byte ECDH secret computed from the point and scalar.
+   */
+  readonly computeEcdhSecret: (
+    publicKey: Uint8Array,
+    privateKey: Uint8Array
+  ) => Uint8Array;
+
+  /**
    * Derive a compressed public key from a valid secp256k1 private key.
    *
    * Throws if the provided private key is too large (see `validatePrivateKey`).
@@ -407,7 +422,8 @@ const enum ByteLength {
   compactSig = 64,
   recoverableSig = 65,
   privateKey = 32,
-  randomSeed = 32
+  randomSeed = 32,
+  ecdhSecret = 32
 }
 
 /**
@@ -440,6 +456,7 @@ const wrapSecp256k1Wasm = (
   const sigScratch = secp256k1Wasm.malloc(ByteLength.maxSig);
   const publicKeyScratch = secp256k1Wasm.malloc(ByteLength.maxPublicKey);
   const messageHashScratch = secp256k1Wasm.malloc(ByteLength.messageHash);
+  const ecdhSecretScratch = secp256k1Wasm.malloc(ByteLength.ecdhSecret);
   const internalPublicKeyPtr = secp256k1Wasm.malloc(
     ByteLength.internalPublicKey
   );
@@ -502,6 +519,32 @@ const wrapSecp256k1Wasm = (
           ByteLength.uncompressedPublicKey,
           CompressionFlag.UNCOMPRESSED
         );
+
+  const computeEcdhSecret = (
+    publicKey: Uint8Array,
+    privateKey: Uint8Array
+  ): Uint8Array => {
+    if (!parsePublicKey(publicKey)) {
+      throw new Error('Failed to parse public key.');
+    }
+    // tslint:disable-next-line: no-use-before-declare
+    return withPrivateKey<Uint8Array>(privateKey, () => {
+      const failed =
+        secp256k1Wasm.ecdh(
+          contextPtr,
+          ecdhSecretScratch,
+          internalPublicKeyPtr,
+          privateKeyPtr
+        ) !== 1;
+
+      if (failed) {
+        throw new Error('Failed to compute EC Diffie-Hellman secret.');
+      }
+      return secp256k1Wasm
+        .readHeapU8(ecdhSecretScratch, ByteLength.ecdhSecret)
+        .slice();
+    });
+  };
 
   const convertPublicKey = (
     compressed: boolean
@@ -897,6 +940,7 @@ const wrapSecp256k1Wasm = (
     addTweakPublicKeyCompressed: addTweakPublicKey(true),
     addTweakPublicKeyUncompressed: addTweakPublicKey(false),
     compressPublicKey: convertPublicKey(true),
+    computeEcdhSecret,
     derivePublicKeyCompressed: derivePublicKey(true),
     derivePublicKeyUncompressed: derivePublicKey(false),
     malleateSignatureCompact: modifySignature(false, false),
@@ -981,4 +1025,5 @@ export const instantiateSecp256k1Bytes = async (
 export const instantiateSecp256k1 = async (
   randomSeed?: Uint8Array
 ): Promise<Secp256k1> =>
+  // tslint:disable-next-line: max-file-line-count
   wrapSecp256k1Wasm(await instantiateSecp256k1Wasm(), randomSeed);
