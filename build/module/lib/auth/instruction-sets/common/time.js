@@ -1,0 +1,9 @@
+/* istanbul ignore file */ // TODO: stabilize & test
+import { CommonOpcodes } from './opcodes';
+export const opCheckLockTimeVerify = () => (state) => 
+// TODO:
+state;
+export const timeOperations = () => ({
+    [CommonOpcodes.OP_CHECKLOCKTIMEVERIFY]: opCheckLockTimeVerify()
+});
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoidGltZS5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIi4uLy4uLy4uLy4uLy4uLy4uL3NyYy9saWIvYXV0aC9pbnN0cnVjdGlvbi1zZXRzL2NvbW1vbi90aW1lLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLDBCQUEwQixDQUFDLHlCQUF5QjtBQUlwRCxPQUFPLEVBQUUsYUFBYSxFQUFFLE1BQU0sV0FBVyxDQUFDO0FBRTFDLE1BQU0sQ0FBQyxNQUFNLHFCQUFxQixHQUFHLEdBR2pDLEVBQUUsQ0FBQyxDQUFDLEtBQVksRUFBRSxFQUFFO0FBQ3RCLFFBQVE7QUFDUixLQUFLLENBQUM7QUFFUixNQUFNLENBQUMsTUFBTSxjQUFjLEdBQUcsR0FJMUIsRUFBRSxDQUFDLENBQUM7SUFDTixDQUFDLGFBQWEsQ0FBQyxzQkFBc0IsQ0FBQyxFQUFFLHFCQUFxQixFQUFpQjtDQUMvRSxDQUFDLENBQUMifQ==

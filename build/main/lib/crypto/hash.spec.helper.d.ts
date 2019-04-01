@@ -1,0 +1,2 @@
+import { HashFunction } from '../bin/bin';
+export declare const testHashFunction: <T extends HashFunction>(hashFunctionName: string, getEmbeddedBinary: () => ArrayBuffer, instantiate: () => Promise<T>, instantiateBytes: (webassemblyBytes: ArrayBuffer) => Promise<T>, abcHash: Uint8Array, testHash: Uint8Array, bitcoinTsHash: Uint8Array, nodeJsAlgorithm: "ripemd160" | "sha1" | "sha256" | "sha512") => void;
