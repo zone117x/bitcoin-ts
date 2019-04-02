@@ -1,4 +1,4 @@
 [submodule "wasm/secp256k1"]
 	path = wasm/secp256k1
-	url = https://github.com/bitjson/secp256k1.git
+url=https://github.com/zone117x/bitcoin-ts-secp256k1.git
 	branch = bitcoin-ts
