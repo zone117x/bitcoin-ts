@@ -4,7 +4,7 @@ import {
   instantiateSecp256k1Wasm,
   instantiateSecp256k1WasmBytes,
   Secp256k1Wasm
-} from '../bin/bin';
+} from '../bin/secp256k1/secp256k1-wasm';
 
 // tslint:disable-next-line:no-magic-numbers
 export type RecoveryId = 0 | 1 | 2 | 3;
